@@ -1,11 +1,8 @@
 package ac.huji.gilad.todolistmanager;
 
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,12 +11,14 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ToDoListManager extends AppCompatActivity {
+    static final String POSITION_TO_REMOVE = "position";
+    static final String TEXT_TO_REMOVE = "todo";
+
+
     List<String> toDoListItems = new ArrayList<>();
     ToDoListAdapter adapter;
     RecyclerView toDoList;
@@ -46,15 +45,6 @@ public class ToDoListManager extends AppCompatActivity {
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         toDoList.setLayoutManager(manager);
         toDoList.setAdapter(adapter);
-
-        toDoList.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                int position = toDoList.getChildAdapterPosition(v);
-                removeItem(position);
-                return false;
-            }
-        });
     }
 
     @Override
@@ -92,14 +82,5 @@ public class ToDoListManager extends AppCompatActivity {
         FragmentManager fragmentManager = getSupportFragmentManager();
         AddDialog addDialog = new AddDialog();
         addDialog.show(fragmentManager, "add_dialog");
-    }
-
-    private void removeItem(int position) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        RemoveDialog removeDialog = new RemoveDialog();
-        Bundle args = new Bundle();
-        args.putInt("position", position);
-        removeDialog.setArguments(args);
-        removeDialog.show(fragmentManager, "remove_dialog");
     }
 }

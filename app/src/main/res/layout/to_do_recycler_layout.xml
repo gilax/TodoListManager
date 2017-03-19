@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:id="@+id/car_layout">
+    android:id="@+id/car_layout"
+    android:longClickable="true">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
@@ -36,7 +37,7 @@
                 android:maxLines="3"
                 android:padding="8dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                android:textColor="#080"
+                android:textColor="#eee"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 

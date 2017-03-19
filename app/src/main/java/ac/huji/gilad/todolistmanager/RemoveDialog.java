@@ -13,13 +13,15 @@ public class RemoveDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-        builder.setTitle("Remove TODO");
+        builder.setTitle("Remove from TODO list");
+        builder.setMessage("Do you want to remove \"" + getArguments().getString(ToDoListManager.TEXT_TO_REMOVE)
+                + "\" from the TODO list?");
 
         builder.setPositiveButton("Remove", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ToDoListManager manager = (ToDoListManager) getActivity();
-                int position = getArguments().getInt("position");
+                int position = getArguments().getInt(ToDoListManager.POSITION_TO_REMOVE);
                 manager.adapter.remove(position);
             }
         });

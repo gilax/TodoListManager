@@ -3,13 +3,15 @@ package ac.huji.gilad.todolistmanager;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.List;
@@ -22,8 +24,9 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         Context context;
-        RelativeLayout layout;
+        ConstraintLayout layout;
         TextView textView;
+        CheckBox done;
 
         ViewHolder(View view){
             super(view);
@@ -42,8 +45,19 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
                     return true;
                 }
             });
-            layout = (RelativeLayout) view.findViewById(R.id.to_do_inner_layout);
+            layout = (ConstraintLayout) view.findViewById(R.id.to_do_inner_layout);
             textView = (TextView) view.findViewById(R.id.to_do_text);
+            done = (CheckBox) view.findViewById(R.id.checkBox);
+            done.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked) {
+                        textView.setTextColor(Color.GRAY);
+                    } else {
+                        textView.setTextColor(Color.parseColor("#ffeeeeee"));
+                    }
+                }
+            });
             context = view.getContext();
         }
     }

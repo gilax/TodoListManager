@@ -10,19 +10,19 @@
     android:longClickable="true">
 
     <android.support.v7.widget.CardView
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@+id/recycle_card"
         cardview:cardCornerRadius="2dp"
         cardview:cardElevation="3dp"
         cardview:cardUseCompatPadding="true"
-        tools:layout_editor_absoluteY="0dp"
         android:layout_marginStart="8dp"
         cardview:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginLeft="8dp"
         android:layout_marginEnd="8dp"
         cardview:layout_constraintRight_toRightOf="parent"
-        android:layout_marginRight="8dp">
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -34,7 +34,7 @@
 
             <TextView
                 android:id="@+id/to_do_text"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:maxLines="3"
                 android:padding="8dp"
@@ -59,11 +59,14 @@
                 android:checked="false"
                 android:layout_marginEnd="4dp"
                 cardview:layout_constraintRight_toRightOf="parent"
+                cardview:layout_constraintLeft_toRightOf="@+id/to_do_text"
                 android:layout_marginRight="4dp"
                 android:layout_marginTop="4dp"
                 cardview:layout_constraintTop_toTopOf="parent"
                 cardview:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginBottom="4dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginLeft="4dp" />
 
         </android.support.constraint.ConstraintLayout>
     </android.support.v7.widget.CardView>

@@ -74,8 +74,7 @@ public class ToDoListManager extends AppCompatActivity {
     }
 
     private void removeAllItems() {
-        toDoListItems.clear();
-        adapter.notifyDataSetChanged();
+        adapter.clear();
     }
 
     private void addItem() {

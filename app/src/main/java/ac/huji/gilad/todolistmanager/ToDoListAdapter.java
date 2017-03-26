@@ -15,6 +15,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static ac.huji.gilad.todolistmanager.ToDoListManager.POSITION_TO_REMOVE;
@@ -28,7 +29,8 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
     static class ViewHolder extends RecyclerView.ViewHolder {
         Context context;
         ConstraintLayout layout;
-        TextView textView;
+        TextView title;
+        TextView reminder;
         CheckBox done;
 
         ViewHolder(View view){
@@ -49,17 +51,21 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
                 }
             });
             layout = (ConstraintLayout) view.findViewById(R.id.to_do_inner_layout);
-            textView = (TextView) view.findViewById(R.id.to_do_text);
-            done = (CheckBox) view.findViewById(R.id.checkBox);
+            title = (TextView) view.findViewById(R.id.to_do_text);
+            reminder = (TextView) view.findViewById(R.id.reminder_recycle);
+            done = (CheckBox) view.findViewById(R.id.item_done);
             context = view.getContext();
         }
 
-        public void setTextColor(int position) {
+        void setTextColor(int position) {
+            int color;
             if (toDoList.get(position).isDone()) {
-                textView.setTextColor(Color.GRAY);
+                color = Color.GRAY;
             } else {
-                textView.setTextColor(Color.parseColor("#ffeeeeee"));
+                color = Color.parseColor("#ffeeeeee");
             }
+            title.setTextColor(color);
+            reminder.setTextColor(color);
         }
     }
 
@@ -88,7 +94,8 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
             holder.layout.setBackgroundColor(Color.parseColor("#ff33b55e"));
         }
 
-        holder.textView.setText(toDoList.get(position).getTitle());
+        holder.title.setText(toDoList.get(position).getTitle());
+        holder.reminder.setText(ToDoItem.dateFormat.format(toDoList.get(position).getRemindDate()));
         holder.setTextColor(position);
 
         onBind = true;
@@ -139,8 +146,11 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
         return toDoList.size();
     }
 
-    void add(String str) {
-        toDoList.add(toDoList.size() - numberOfDone, new ToDoItem(str));
+    void add(String str, Date date) {
+        ToDoItem item = new ToDoItem(str);
+        item.setRemindDate(date);
+
+        toDoList.add(toDoList.size() - numberOfDone, item);
         notifyDataSetChanged();
     }
 

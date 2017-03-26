@@ -2,4 +2,8 @@
     <string name="app_name">Todo List Manager</string>
     <string name="action_add">Add</string>
     <string name="action_remove_all">Remove all</string>
+    <string name="reminder_needed">Do you need a reminder?</string>
+    <string name="add_edit_text_hint">What would you like to add?</string>
+    <string name="reminder">Set your reminder</string>
+    <string name="reminder_time">What time do you need the remind?</string>
 </resources>

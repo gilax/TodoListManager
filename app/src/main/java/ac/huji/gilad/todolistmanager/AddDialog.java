@@ -59,6 +59,12 @@ public class AddDialog extends DialogFragment {
                 }
             }
         });
+        reminder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reminderDialog.show();
+            }
+        });
 
         Calendar calendar = Calendar.getInstance();
         reminderDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
@@ -79,6 +85,12 @@ public class AddDialog extends DialogFragment {
                 if (hasFocus) {
                     timeDialog.show();
                 }
+            }
+        });
+        timeChoose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                timeDialog.show();
             }
         });
 

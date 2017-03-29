@@ -2,11 +2,9 @@ package ac.huji.gilad.todolistmanager;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,43 +16,31 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static ac.huji.gilad.todolistmanager.ToDoListManager.POSITION_TO_REMOVE;
-import static ac.huji.gilad.todolistmanager.ToDoListManager.TEXT_TO_REMOVE;
-
 class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
-    private static List<ToDoItem> toDoList;
+    static final String CALL = "Call";
+    static final String SEND = "Send";
+    static final String REMOVE = "Remove";
+
+    static List<ToDoItem> toDoList;
     private static int numberOfDone = 0;
     private boolean onBind;
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener{
         Context context;
         ConstraintLayout layout;
         TextView title;
         TextView reminder;
         CheckBox done;
 
-        ViewHolder(View view){
+        ViewHolder(View view) {
             super(view);
-            view.setLongClickable(true);
-            view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    int position = getAdapterPosition();
-                    FragmentManager fragmentManager = ((FragmentActivity)context).getSupportFragmentManager();
-                    RemoveDialog removeDialog = new RemoveDialog();
-                    Bundle args = new Bundle();
-                    args.putInt(POSITION_TO_REMOVE, position);
-                    args.putString(TEXT_TO_REMOVE, toDoList.get(position).getTitle());
-                    removeDialog.setArguments(args);
-                    removeDialog.show(fragmentManager, "remove_dialog");
-                    return true;
-                }
-            });
             layout = (ConstraintLayout) view.findViewById(R.id.to_do_inner_layout);
             title = (TextView) view.findViewById(R.id.to_do_text);
             reminder = (TextView) view.findViewById(R.id.reminder_recycle);
             done = (CheckBox) view.findViewById(R.id.item_done);
             context = view.getContext();
+
+            view.setOnCreateContextMenuListener(this);
         }
 
         void setTextColor(int position) {
@@ -66,6 +52,18 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
             }
             title.setTextColor(color);
             reminder.setTextColor(color);
+        }
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.setHeaderTitle("What would you like to do?");
+            if (toDoList.get(getAdapterPosition()).getTitle().toLowerCase().startsWith("call")) {
+                menu.add(0, v.getId(), getAdapterPosition(), CALL);
+            }
+            if (toDoList.get(getAdapterPosition()).getTitle().toLowerCase().startsWith("send")) {
+                menu.add(0, v.getId(), getAdapterPosition(), SEND);
+            }
+            menu.add(0, v.getId(), getAdapterPosition(), REMOVE);
         }
     }
 
@@ -81,9 +79,7 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
     public ToDoListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.to_do_recycler_layout, parent, false);
 
-        ViewHolder vh = new ViewHolder(view);
-
-        return vh;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -144,6 +140,10 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return toDoList.size();
+    }
+
+    ToDoItem get(int position) {
+        return toDoList.get(position);
     }
 
     void add(String str, Date date) {

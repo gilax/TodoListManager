@@ -1,7 +1,10 @@
 package ac.huji.gilad.todolistmanager;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +16,7 @@ import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class ToDoListManager extends AppCompatActivity {
     static final String POSITION_TO_REMOVE = "position";
@@ -71,6 +75,48 @@ public class ToDoListManager extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int position = item.getOrder();
+        String title = ToDoListAdapter.toDoList.get(position).getTitle();
+        if (item.getTitle().equals(ToDoListAdapter.CALL)) {
+            String contact = title.substring(ToDoListAdapter.CALL.length()).trim();
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            if (Pattern.compile("[0-9]+").matcher(contact).matches()){
+                intent.setData(Uri.parse("tel:" + contact));
+                startActivity(intent);
+            } else {
+                Snackbar.make(item.getActionView(),
+                        "Can't parse phone number: " + contact,
+                        Snackbar.LENGTH_SHORT).show();
+            }
+        } else if (item.getTitle().equals(ToDoListAdapter.SEND)) {
+            String text = title.substring(ToDoListAdapter.SEND.length()).trim();
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.putExtra(Intent.EXTRA_TEXT, text);
+            intent.setType("text/plain");
+            startActivity(intent);
+        } else if (item.getTitle().equals(ToDoListAdapter.REMOVE)) {
+            remove(position);
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void remove(int position) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        RemoveDialog removeDialog = new RemoveDialog();
+        Bundle args = new Bundle();
+        args.putInt(POSITION_TO_REMOVE, position);
+        args.putString(TEXT_TO_REMOVE, adapter.get(position).getTitle());
+        removeDialog.setArguments(args);
+        removeDialog.show(fragmentManager, "remove_dialog");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void removeAllItems() {

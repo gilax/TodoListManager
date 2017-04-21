@@ -1,9 +1,11 @@
 package ac.huji.gilad.todolistmanager;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,15 +13,33 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
     static final String CALL = "Call";
     static final String SEND = "Send";
     static final String REMOVE = "Remove";
+
+    private final static String TAG = "FirebaseDataBase";
+    private final static String TODO_LIST = "toDoList";
+    // map of <item creation time, DB key>
+    private Map<String, String> keys = new HashMap<>();
+
+    private DatabaseReference dbRef;
+    private ProgressDialog progress;
 
     static List<ToDoItem> toDoList;
     private static int numberOfDone = 0;
@@ -70,6 +90,10 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
     ToDoListAdapter(List<String> dataSet) {
         super();
         toDoList = new ArrayList<>();
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        dbRef = firebaseDatabase.getReference(TODO_LIST);
+
         for (String title : dataSet) {
             toDoList.add(new ToDoItem(title));
         }
@@ -104,6 +128,10 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
                 if (!onBind) {
                     int listPosition = holder.getAdapterPosition();
                     toDoList.get(listPosition).setDone(isChecked);
+
+                    // update done at DB
+                    String key = toDoList.get(listPosition).getCreationTime().toString();
+                    dbRef.child(keys.get(key)).child("done").setValue(isChecked);
 
                     // move the item to its position
                     if (isChecked) {
@@ -142,6 +170,64 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
         return toDoList.size();
     }
 
+    void setDataBaseChildListener(final Context context) {
+        dbRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+
+                ToDoItem item = dataSnapshot.getValue(ToDoItem.class);
+                toDoList.add(toDoList.size() - numberOfDone, item);
+                keys.put(item.getCreationTime().toString(), item.getKey());
+                notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildChanged:" + dataSnapshot.getKey());
+
+                ToDoItem newItem = dataSnapshot.getValue(ToDoItem.class);
+                String itemKey = dataSnapshot.getKey();
+
+                if (!newItem.getKey().equals(itemKey)) {
+                    newItem.setKey(itemKey);
+                }
+
+                if (!toDoList.contains(newItem)) {
+                    for (int i = 0; i < toDoList.size(); i++) {
+                        if (toDoList.get(i).getKey().equals(itemKey)) {
+                            keys.remove(toDoList.get(i).getCreationTime().toString());
+                            keys.put(newItem.getCreationTime().toString(), itemKey);
+                            toDoList.set(i, newItem);
+                            notifyItemChanged(i);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d(TAG, "onChildRemoved:" + dataSnapshot.getKey());
+
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildMoved:" + dataSnapshot.getKey());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "postComments:onCancelled", databaseError.toException());
+                Toast.makeText(context, "Failed to load ToDo list from DB.",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     ToDoItem get(int position) {
         return toDoList.get(position);
     }
@@ -150,14 +236,20 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
         ToDoItem item = new ToDoItem(str);
         item.setRemindDate(date);
 
-        toDoList.add(toDoList.size() - numberOfDone, item);
-        notifyDataSetChanged();
+        String key = dbRef.push().getKey();
+        item.setKey(key);
+        dbRef.child(key).setValue(item);
     }
 
     void remove(int position) {
         if (toDoList.get(position).isDone()) {
             numberOfDone--;
         }
+        ToDoItem item = toDoList.get(position);
+        String key = keys.get(item.getCreationTime().toString());
+        dbRef.child(key).removeValue();
+        keys.remove(item.getCreationTime().toString());
+
         toDoList.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, toDoList.size());
@@ -166,6 +258,8 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
     void clear() {
         numberOfDone = 0;
         toDoList.clear();
+        dbRef.removeValue();
+
         notifyDataSetChanged();
     }
 }

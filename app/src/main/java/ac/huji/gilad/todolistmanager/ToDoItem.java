@@ -1,5 +1,6 @@
 package ac.huji.gilad.todolistmanager;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -11,6 +12,9 @@ class ToDoItem implements Comparable<ToDoItem>{
     private Date remindDate;
     private Date creationTime;
     private boolean done;
+    private String key;
+
+    ToDoItem() {}
 
     ToDoItem(String title) {
         this.title = title;
@@ -44,5 +48,17 @@ class ToDoItem implements Comparable<ToDoItem>{
             throw new NullPointerException();
         }
         return Long.signum(this.creationTime.getTime() - o.creationTime.getTime());
+    }
+
+    Date getCreationTime() {
+        return creationTime;
+    }
+
+    void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
     }
 }

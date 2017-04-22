@@ -170,7 +170,7 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
         return toDoList.size();
     }
 
-    void setDataBaseChildListener(final Context context) {
+    void setDataBaseChildListener(final Context context, final ProgressDialog progress) {
         dbRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
@@ -224,6 +224,20 @@ class ToDoListAdapter extends RecyclerView.Adapter<ToDoListAdapter.ViewHolder> {
                 Log.w(TAG, "postComments:onCancelled", databaseError.toException());
                 Toast.makeText(context, "Failed to load ToDo list from DB.",
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (progress.isShowing()) {
+                    progress.hide();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
     }

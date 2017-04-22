@@ -1,5 +1,6 @@
 package ac.huji.gilad.todolistmanager;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -35,6 +36,7 @@ public class ToDoListManager extends AppCompatActivity {
     static final String PASSWORD = "a12345678A";
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private ProgressDialog progress;
 
     List<String> toDoListItems = new ArrayList<>();
     ToDoListAdapter adapter;
@@ -78,7 +80,11 @@ public class ToDoListManager extends AppCompatActivity {
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         toDoList.setLayoutManager(manager);
         toDoList.setAdapter(adapter);
-        adapter.setDataBaseChildListener(this);
+
+        progress = new ProgressDialog(this);
+        progress.setMessage("Loading...");
+        progress.show();
+        adapter.setDataBaseChildListener(this, progress);
     }
 
     @Override
